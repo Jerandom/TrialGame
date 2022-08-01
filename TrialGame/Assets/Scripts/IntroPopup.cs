@@ -12,7 +12,7 @@ public class IntroPopup : MonoBehaviour
 
     private void Start()
     {
-        PopupWindow.gameObject.SetActive(true);
+        PopupWindow.gameObject.SetActive(false);
     }
 
     private void Update()

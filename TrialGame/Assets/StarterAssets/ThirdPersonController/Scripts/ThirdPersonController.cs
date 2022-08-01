@@ -27,6 +27,7 @@ namespace StarterAssets
 
         [Tooltip("Acceleration and deceleration")]
         public float SpeedChangeRate = 10.0f;
+        public float Sensitivity = 1f;
 
         public AudioClip LandingAudioClip;
         public AudioClip[] FootstepAudioClips;
@@ -97,6 +98,13 @@ namespace StarterAssets
         private int _animIDJump;
         private int _animIDFreeFall;
         private int _animIDMotionSpeed;
+        private int _animIDVerticle;
+        private int _animIDHorizontal;
+        private int _animIDisAiming;
+        private int _animIDisEquiped;
+        private int _animIDisShooting;
+
+        private bool _rotateOnMove;
 
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
         private PlayerInput _playerInput;
@@ -158,7 +166,18 @@ namespace StarterAssets
 
             JumpAndGravity();
             GroundedCheck();
+
             Move();
+
+            if (_input.isEquiped)
+                _animator.SetBool(_animIDisEquiped, _input.isEquiped);
+            else
+                _animator.SetBool(_animIDisEquiped, false);
+
+            if (_input.isShooting && _input.isAiming)
+                _animator.SetBool(_animIDisShooting, _input.isShooting);
+            else
+                _animator.SetBool(_animIDisShooting, false);
         }
 
         private void LateUpdate()
@@ -173,6 +192,11 @@ namespace StarterAssets
             _animIDJump = Animator.StringToHash("Jump");
             _animIDFreeFall = Animator.StringToHash("FreeFall");
             _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+            _animIDVerticle = Animator.StringToHash("Verticle");
+            _animIDHorizontal = Animator.StringToHash("Horizontal");
+            _animIDisAiming = Animator.StringToHash("isAiming");
+            _animIDisEquiped = Animator.StringToHash("isEquiped");
+            _animIDisShooting = Animator.StringToHash("isShooting");
         }
 
         private void GroundedCheck()
@@ -198,8 +222,8 @@ namespace StarterAssets
                 //Don't multiply mouse input by Time.deltaTime;
                 float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
-                _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
-                _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier;
+                _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier * Sensitivity;
+                _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier * Sensitivity;
             }
 
             // clamp our rotations so our values are limited 360 degrees
@@ -214,7 +238,16 @@ namespace StarterAssets
         private void Move()
         {
             // set target speed based on move speed, sprint speed and if sprint is pressed
-            float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+            float targetSpeed;
+
+            if (_input.isAiming)
+            {
+                targetSpeed = MoveSpeed / 2;
+            }
+            else
+            {
+                targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+            }
 
             // a simplistic acceleration and deceleration designed to be easy to remove, replace, or iterate upon
 
@@ -261,7 +294,10 @@ namespace StarterAssets
                     RotationSmoothTime);
 
                 // rotate to face input direction relative to camera position
-                transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                if (_rotateOnMove)
+                {
+                    transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                }
             }
 
 
@@ -274,8 +310,20 @@ namespace StarterAssets
             // update animator if using character
             if (_hasAnimator)
             {
-                _animator.SetFloat(_animIDSpeed, _animationBlend);
-                _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+                if (_input.isAiming)
+                {
+                    _animator.SetBool(_animIDisAiming, true);
+                    _animator.SetFloat(_animIDVerticle, Input.GetAxis("Vertical"));
+                    _animator.SetFloat(_animIDHorizontal, Input.GetAxis("Horizontal"));
+                    _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+                }
+                else
+                {
+                    _animator.SetBool(_animIDisAiming, false);
+                    _animator.SetFloat(_animIDSpeed, _animationBlend);
+                    _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+                }
+                
             }
         }
 
@@ -367,6 +415,16 @@ namespace StarterAssets
             Gizmos.DrawSphere(
                 new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z),
                 GroundedRadius);
+        }
+
+        public void SetSensitivity(float newSensitivity)
+        {
+            Sensitivity = newSensitivity;
+        }
+
+        public void SetRotateOnMove(bool newRotateOnMove)
+        {
+            _rotateOnMove = newRotateOnMove;
         }
 
         private void OnFootstep(AnimationEvent animationEvent)
