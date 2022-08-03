@@ -2078,7 +2078,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!135 &378466776
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5723,10 +5723,16 @@ MonoBehaviour:
   m_text: 'Tutorial
 
 
-    Welcome to my world!
+    Press "LCTRL" to bring out the mouse cursor to interact
+    with the painting
 
-    Press "LCTRL" to bring out the
-    mouse cursor to interact with the painting
+
+    Press "1" to draw the bow
+
+    Hold "RMB" to enter shooting
+    mode
+
+    Hold and release "LMB" to shoot
 
 
     click "Start" to play'
@@ -5756,8 +5762,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

@@ -60,7 +60,7 @@ public class PaintingPopup : MonoBehaviour
         goButton.onClick.AddListener(() =>
         {
             PopupWindow.gameObject.SetActive(false);
-            Application.OpenURL("https://www.sgpbusiness.com/company/Web3re-Technologies-Pte-Ltd");
+            Application.OpenURL("https://github.com/Jerandom?tab=repositories");
         });
     }
 }
